@@ -1,0 +1,94 @@
+---
+title: "Dubois Challenge"
+author: "Yuzhou Pan"
+date: "2021-02-17"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+10 challenges about recreating Dubois data portraits using RStudio. I will do Challenge 02.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+conjugal <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-16/conjugal.csv')
+```
+
+## Challenge 02
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)
+conjugal_new <- conjugal %>%
+  pivot_longer(
+    cols = 3:5,
+    names_to = "Status",
+    values_to = "Status_pct"
+  ) %>%
+  mutate(Status_pct = replace(Status_pct, Population == "Germany" & 
+                                          Age == "60 and over" & 
+                                          Status == "Divorced and Widowed", 
+                              29.6)) %>%
+  # ^ fix wrong value
+  mutate(Population = fct_relevel(Population, "Germany", after = 1)) %>%
+  mutate(Status = fct_relevel(Status, "Single", "Married", "Divorced and Widowed"))
+
+
+conjugal_new %>%
+  ggplot(aes(x = Population, y = Status_pct, fill = Status)) +
+  geom_bar(stat = "identity") +
+  coord_flip() + scale_y_reverse() +
+  theme_minimal() +
+  facet_wrap(~Age, ncol = 1, strip.position = "left") +
+  geom_text(aes(label = scales::percent(Status_pct/100, accuracy = 0.1)),
+            hjust = 0, position = position_stack(vjust = 0.5)) +
+  theme(legend.position = "top", legend.title = element_blank(),
+        axis.title = element_blank(), axis.text.x = element_blank(),
+        strip.text.y.left = element_text(angle = 0),
+        strip.placement = "outside",
+        panel.spacing.y = unit(2.5, "lines")) +
+  scale_fill_manual(values = c("#E53956", "#F9B730", "#40624F"))
+```
+
+## What to improve
+
++ Try to customize legend shape. <code>fill = .</code> automatically got square-shaped legend, where the original graph has shapes as filled circles.
+
+## Codes
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+library(readr)
+conjugal <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-16/conjugal.csv')
+
+library(tidyverse)
+conjugal_new <- conjugal %>%
+  pivot_longer(
+    cols = 3:5,
+    names_to = "Status",
+    values_to = "Status_pct"
+  ) %>%
+  mutate(Status_pct = replace(Status_pct, Population == "Germany" & 
+                                          Age == "60 and over" & 
+                                          Status == "Divorced and Widowed", 
+                              29.6)) %>%
+  # ^ fix wrong value
+  mutate(Population = fct_relevel(Population, "Germany", after = 1)) %>%
+  mutate(Status = fct_relevel(Status, "Single", "Married", "Divorced and Widowed"))
+
+
+conjugal_new %>%
+  ggplot(aes(x = Population, y = Status_pct, fill = Status)) +
+  geom_bar(stat = "identity") +
+  coord_flip() + scale_y_reverse() +
+  theme_minimal() +
+  facet_wrap(~Age, ncol = 1, strip.position = "left") +
+  geom_text(aes(label = scales::percent(Status_pct/100, accuracy = 0.1)), 
+            hjust = 0, position = position_stack(vjust = 0.5)) +
+  theme(legend.position = "top", legend.title = element_blank(),
+        axis.title = element_blank(), axis.text.x = element_blank(),
+        strip.text.y.left = element_text(angle = 0),
+        strip.placement = "outside",
+        panel.spacing.y = unit(2.5, "lines")) +
+  scale_fill_manual(values = c("#E53956", "#F9B730", "#40624F"))
+```
+

@@ -2,7 +2,7 @@
 title: "tidytuesday - HBCU Enrollment"
 author: "Yuzhou Pan"
 date: "2021-02-04"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Setup and plots
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 hbcu_all <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-02/hbcu_all.csv')
 
 ```
@@ -56,6 +56,8 @@ hbcu_gathered %>%
 ## Codes
 
 ```{r, eval=FALSE, warning=FALSE, message=FALSE}
+hbcu_all <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-02/hbcu_all.csv')
+
 library(tidyverse)
 library(gridExtra)
 hbcu_all %>%
