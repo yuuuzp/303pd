@@ -1,0 +1,142 @@
+---
+title: "Video Games and Sliced"
+author: "Yuzhou Pan"
+date: "2021-03-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Plot
+
+```{r, message=FALSE, error=FALSE, include=FALSE, warning=FALSE}
+games <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-16/games.csv')
+```
+
+```{r, echo=FALSE, error=FALSE, message=FALSE,warning=FALSE}
+library(tidyverse)
+library(cowplot)
+games %>%
+  filter(year == 2020) %>%
+  group_by(gamename) %>%
+  summarise(avg_2020 = mean(avg)) %>%
+  top_n(5) %>%
+  select(gamename) -> top5Games2020
+
+games %>%
+  filter(year == 2020) %>%
+  filter(gamename %in% top5Games2020$gamename) -> top5GamesData
+
+# convert month abbreviation to numeric values
+top5GamesData %>%
+  mutate(month = match(month, month.name)) -> top5GamesData
+
+top5GamesData %>%
+  ggplot(aes(x = month, y = avg, group = gamename, col = gamename)) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal() -> plot1
+
+top5GamesData %>%
+  ggplot(aes(x = month, y = gain, group = gamename, col = gamename)) +
+  geom_point() +
+  geom_line() +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(legend.position = "none") -> plot2
+
+top5GamesData %>%
+  ggplot(aes(x = month, y = peak, group = gamename, col = gamename)) +
+  geom_point() +
+  geom_line() +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(legend.position = "none") -> plot3
+
+the_legend <- get_legend(plot1)
+plot1 <- plot1 + theme(legend.position = "none")
+
+the_title <- ggdraw() + 
+  draw_label(
+    "Top 5 Games on Steam in 2020",
+    x = 0,
+    hjust = 0)
+
+plot_grid(the_title, 
+          plot_grid(plot1, plot2, plot3, the_legend), 
+          rel_heights = c(0.1, 1),
+          ncol=1)
+```
+
+## Aside
+
++ Personally rarely play video games, but heard of Cyberpunk 2077 as the newly released game at the end of 2020 with extensive popularity. As shown in the graph, it achieved the 3rd avg at Dec 2020. However the high avg of Cyberpunk 2077 may partly be caused by the fact that it was the first month since it released, with 100\% first-time players.
+
+## Conclusion \& What to improve
+
++ In the plots "avg" means "average number of players at the same time". I tried to apply "glm" that we recently studied in STA303 as the smoothing method, but it does not work well with very broad 95\% confidence interval, as bad as "lm". Thus I chose the Loess smoother.
++ Also tried new package "cowplot", which enhances ggplot2 functionality such as extracting legends and rearranging plots.
++ Aesthetics... I don't know. I have no designing skills. Maybe checking others' illustrations for tidytuesday.
+
+## Codes
+
+```{r, eval = FALSE, message=FALSE, error=FALSE}
+games <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-16/games.csv')
+
+library(tidyverse)
+library(cowplot)
+games %>%
+  filter(year == 2020) %>%
+  group_by(gamename) %>%
+  summarise(avg_2020 = mean(avg)) %>%
+  top_n(5) %>%
+  select(gamename) -> top5Games2020
+
+games %>%
+  filter(year == 2020) %>%
+  filter(gamename %in% top5Games2020$gamename) -> top5GamesData
+
+# convert month abbreviation to numeric values
+top5GamesData %>%
+  mutate(month = match(month, month.name)) -> top5GamesData
+
+top5GamesData %>%
+  ggplot(aes(x = month, y = avg, group = gamename, col = gamename)) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal() -> plot1
+
+top5GamesData %>%
+  ggplot(aes(x = month, y = gain, group = gamename, col = gamename)) +
+  geom_point() +
+  geom_line() +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(legend.position = "none") -> plot2
+
+top5GamesData %>%
+  ggplot(aes(x = month, y = peak, group = gamename, col = gamename)) +
+  geom_point() +
+  geom_line() +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(legend.position = "none") -> plot3
+
+the_legend <- get_legend(plot1)
+plot1 <- plot1 + theme(legend.position = "none")
+
+the_title <- ggdraw() + 
+  draw_label(
+    "Top 5 Games on Steam in 2020",
+    x = 0,
+    hjust = 0)
+
+plot_grid(the_title, 
+          plot_grid(plot1, plot2, plot3, the_legend), 
+          rel_heights = c(0.1, 1),
+          ncol=1)
+```

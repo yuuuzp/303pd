@@ -1,0 +1,76 @@
+---
+title: "Makeup Shades"
+author: "Yuzhou Pan"
+date: "2021-04-01"
+output: 
+  pdf_document: 
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Plot
+
+```{r, message=FALSE, error=FALSE, include=FALSE, warning=FALSE}
+sephora <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/sephora.csv')
+ulta <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/ulta.csv')
+allCategories <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allCategories.csv')
+allShades <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allShades.csv')
+allNumbers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allNumbers.csv')
+
+```
+
+```{r, echo=FALSE, error=FALSE, message=FALSE,warning=FALSE}
+library(tidyverse)
+library(cowplot)
+allShades %>%
+  drop_na(name) %>%
+  filter(str_detect(name,"Nude") 
+         | str_detect(name, "nude") 
+         | str_detect(description, "Nude") 
+         | str_detect(description, "nude")) -> ShadesNude
+
+ShadesNude %>%
+  ggplot(aes(x = lightness, fill = hex)) +
+  geom_dotplot(binpositions = "all", binwidth = 0.02,
+               method = "histodot", stackgroups = TRUE) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  scale_fill_identity()
+```
+
+
+## What I learnt
+
++ https://pudding.cool/2021/03/foundation-names/ This article raised awareness of usage of the word "Nude" in makeup foundation colors being potentially problematic, because it suggests a correlation between "Nude" and lighter shades of skin colors.
++ The plot on top is an illustration of "Nude" shade foundations relating with lightness of the color.
++ I learnt to use geom_dotplot for the case of single variable, and plot reassures the finding from the mentioned article.
+
+## Codes
+
+```{r, eval = FALSE, message=FALSE, error=FALSE}
+sephora <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/sephora.csv')
+ulta <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/ulta.csv')
+allCategories <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allCategories.csv')
+allShades <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allShades.csv')
+allNumbers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allNumbers.csv')
+
+library(tidyverse)
+library(cowplot)
+allShades %>%
+  drop_na(name) %>%
+  filter(str_detect(name,"Nude") 
+         | str_detect(name, "nude") 
+         | str_detect(description, "Nude") 
+         | str_detect(description, "nude")) -> ShadesNude
+
+ShadesNude %>%
+  ggplot(aes(x = lightness, fill = hex)) +
+  geom_dotplot(binpositions = "all", binwidth = 0.02,
+               method = "histodot", stackgroups = TRUE) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  scale_fill_identity()
+```
